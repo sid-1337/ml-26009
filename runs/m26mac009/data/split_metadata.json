@@ -1,0 +1,10 @@
+{
+  "seed": 26009,
+  "seed_is_provisional": false,
+  "roll_number": "M26MAC009",
+  "split_counts": {
+    "train": 240,
+    "validation": 80,
+    "test": 80
+  }
+}

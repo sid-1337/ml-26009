@@ -64,7 +64,7 @@ cd ..
 ## Files
 
 - `report/`: official PDF, TeX source, CVPR style, and report figures.
-- `task99/`, `scripts/`, `tests/`: complete implementation, figure/report scripts, and checks.
+- `task26009/`, `scripts/`, `tests/`: complete implementation, figure/report scripts, and checks.
 - `configs/`: default parameters and the configuration used for the included run.
 - `data/`: dataset, saved split, seed metadata, and 30 training resamples.
 - `results/`: consolidated scores, histories, case studies, and all prediction vectors.

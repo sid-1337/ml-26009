@@ -6,7 +6,7 @@ import json
 import sys
 import numpy as np
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from task99.metrics import accuracy,bias_variance
+from task26009.metrics import accuracy,bias_variance
 
 
 def main():

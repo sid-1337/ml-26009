@@ -8,9 +8,9 @@ from time import perf_counter
 import numpy as np
 from sklearn.tree import DecisionTreeClassifier
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from task99.models import Bagging,SAMME
-from task99.data import make_split,make_resamples,mask_faces
-from task99.experiments import child_seed
+from task26009.models import Bagging,SAMME
+from task26009.data import make_split,make_resamples,mask_faces
+from task26009.experiments import child_seed
 
 
 def main():

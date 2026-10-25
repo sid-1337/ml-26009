@@ -1,6 +1,6 @@
 """Add measured, per-face ensemble evidence to the completed masking study.
 
-Run after ``python -m task99.experiments`` finishes. This loads the frozen
+Run after ``python -m task26009.experiments`` finishes. This loads the frozen
 models; it never refits, tunes, or changes case selection. Pairwise disagreement
 is measured over unordered pairs of trees on the selected single face. Global
 feature importance is descriptive training-set impurity importance, not a causal
@@ -21,8 +21,8 @@ import numpy as np
 # Allow the documented ``python scripts/enrich_results.py`` invocation without
 # requiring a separately installed package.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from task99.data import mask_faces
-from task99.metrics import disagreement
+from task26009.data import mask_faces
+from task26009.metrics import disagreement
 
 
 def enrich_case(summary: dict, models: dict, X: np.ndarray, test: np.ndarray) -> dict:

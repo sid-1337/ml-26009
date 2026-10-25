@@ -295,7 +295,7 @@ def main():
     chosen_depth=selected['tree']['depth']
     depths=([2,8,None] if chosen_depth is None else [1 if chosen_depth==2 else 2,chosen_depth,None])
     depths=list(dict.fromkeys(depths))
-    source_hashes={name:hashlib.sha256((source_root/'task99'/name).read_bytes()).hexdigest()
+    source_hashes={name:hashlib.sha256((source_root/'task26009'/name).read_bytes()).hexdigest()
                    for name in ['models.py','data.py','metrics.py','experiments.py']}
     fingerprint=hashlib.sha256(json.dumps({'config':config,'selected':selected,'schema':2,
                                          'dataset':metadata['dataset_sha256'],

@@ -15,7 +15,7 @@ from pathlib import Path
 import tempfile
 import textwrap
 
-os.environ.setdefault("MPLCONFIGDIR", str(Path(tempfile.gettempdir()) / "task99-matplotlib"))
+os.environ.setdefault("MPLCONFIGDIR", str(Path(tempfile.gettempdir()) / "task26009-matplotlib"))
 
 import matplotlib
 

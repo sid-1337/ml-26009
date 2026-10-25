@@ -6,7 +6,7 @@ from unittest.mock import patch
 import numpy as np
 from numpy.testing import assert_allclose, assert_array_equal
 
-from task99.models import Bagging, SAMME
+from task26009.models import Bagging, SAMME
 
 
 class TestBagging(unittest.TestCase):
@@ -107,7 +107,7 @@ class TestSAMME(unittest.TestCase):
         self.assertAlmostEqual(weighted.sample_weight_history_[1].sum(), 1)
 
     def test_chance_level_first_learner_is_rejected_even_with_roundoff(self):
-        with patch("task99.models.DecisionTreeClassifier", return_value=_FixedTree([0] * 6)):
+        with patch("task26009.models.DecisionTreeClassifier", return_value=_FixedTree([0] * 6)):
             with self.assertRaisesRegex(ValueError, "first weak learner"):
                 SAMME(n_estimators=5).fit(self.X, self.y)
 
@@ -115,7 +115,7 @@ class TestSAMME(unittest.TestCase):
         # First error is 1/3. Its two mistakes then carry total weight 2/3.
         first = _FixedTree([0, 0, 1, 1, 1, 1])
         second = _FixedTree([1, 1, 0, 0, 0, 0])
-        with patch("task99.models.DecisionTreeClassifier", side_effect=[first, second]):
+        with patch("task26009.models.DecisionTreeClassifier", side_effect=[first, second]):
             model = SAMME(n_estimators=5).fit(self.X, self.y)
         self.assertEqual(len(model.estimators_), 1)
         self.assertEqual(model.termination_reason_, "weak_learner_not_better_than_random")
@@ -136,7 +136,7 @@ class TestSAMME(unittest.TestCase):
         y = np.array([10, 20, 90, 90])
         first = _FixedTree([10, 20, 20, 90])
         second = _FixedTree([20, 20, 90, 90])
-        with patch("task99.models.DecisionTreeClassifier", side_effect=[first, second]):
+        with patch("task26009.models.DecisionTreeClassifier", side_effect=[first, second]):
             model = SAMME(n_estimators=2).fit(X, y)
         # Error_1=1/4 => alpha_1=log(6). Weight_2(row 0)=1/9,
         # so error_2=1/9 => alpha_2=log(16).

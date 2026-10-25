@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
-from task99.data import make_split, mask_faces, make_resamples, roll_seed, prepare
-from task99.metrics import bias_variance, disagreement
+from task26009.data import make_split, mask_faces, make_resamples, roll_seed, prepare
+from task26009.metrics import bias_variance, disagreement
 
 
 def test_split_and_resampling_preserve_identity_and_exclude_holdouts():
