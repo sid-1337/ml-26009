@@ -1,0 +1,10 @@
+{
+  "seed": 99,
+  "seed_is_provisional": true,
+  "roll_number": null,
+  "split_counts": {
+    "train": 240,
+    "validation": 80,
+    "test": 80
+  }
+}

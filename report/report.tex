@@ -1,0 +1,422 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+\usepackage[pagenumbers]{cvpr}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage[breaklinks=true,colorlinks=true,allcolors=blue]{hyperref}
+\def\paperID{Task99}
+\def\confName{CVPR}
+\def\confYear{2026}
+\setlength{\parskip}{2pt}
+\setlength{\textfloatsep}{5pt}
+\newsavebox{\reporttablebox}
+\title{Bagging, Boosting, and Bias-Variance on Face Recognition}
+\author{Student name not provided; roll number: not provided\\Provisional seed: 99; repository: not provided; commit: not provided}
+\begin{document}
+\maketitle
+\section*{Experimental setup}
+\subsection*{Abstract}
+This study compares a decision tree, bagging, and multiclass SAMME on raw Olivetti face pixels. The split has 240 training, 80 validation, and 80 test images from 40 identities. Validation selects tree depth None, minimum leaf 4, 200 bagged trees, and SAMME depth 4 with 50 rounds. Clean-test accuracies are 58.8\%, 86.2\%, and 32.5\%. A central mask tests occlusion; 30 paired training resamples measure bias and variance.
+
+\subsection*{1. Data and split}
+Olivetti has 400 grayscale images, 10 per identity, at 64 x 64 resolution [1]. numpy.random.default\_rng permutes each identity's images into six training, two validation, and two test examples. The same indices are reused throughout. Inputs are 4,096 raw pixels, without PCA or feature learning.
+
+The mask zeros rows 24:40 and columns 24:40 of the test images before flattening. It removes 256 pixels, or 6.25\%, from each of the same 80 faces. Training and validation images stay clean.
+
+\subsection*{2. Model selection}
+Only clean validation accuracy selects hyperparameters. Ties prefer shallower depth, larger minimum leaf size, then fewer learners or rounds; None follows all finite depths. Test scores play no part in selection. Class vectors use labels 0-39 in order, with the first class winning score ties.
+
+\newpage
+\subsection*{Run status}
+Seed 99 is provisional because the complete roll number was not provided. Code and report were generated with Codex.
+
+\subsection*{3. Methods}
+DecisionTreeClassifier supplies individual trees [2]. The ensemble code implements bootstrap draws, voting, out-of-bag (OOB) predictions, and SAMME weight updates directly; it does not use library ensemble classifiers.
+
+Bagging fits each tree to 240 training positions drawn with replacement and averages hard votes [3]. SAMME fits trees under changing sample weights and combines their hard predictions using positive learner coefficients [4]. Both return normalized class vectors.
+
+\subsection*{4. Experimental controls}
+The bagging sweep uses prefixes of one 200-tree ensemble. Timing comparisons fit each size afresh. All methods share the same 30 within-identity training resamples and fixed test set, without retuning. Keeping model RNG streams fixed across repetitions isolates the effect of changing training images.
+
+The resampling study concerns this training pool and split, not new identities or test sets. Robustness covers one central zero mask. Winning vote scores are treated as confidence measures, without assuming calibration.
+
+\clearpage
+\twocolumn[{%
+\section*{Single tree and bootstrap aggregation}
+{\centering
+\IfFileExists{figures/02_bagging_diagnostics_compact.pdf}{\def\reportfigure{figures/02_bagging_diagnostics_compact.pdf}}{\def\reportfigure{../figures/02_bagging_diagnostics.pdf}}
+\includegraphics[width=0.98\textwidth,height=2.083in,keepaspectratio]{\reportfigure}
+\par\small Figure 1. OOB and validation accuracy, tree disagreement, vote margin, and distinct bootstrap examples versus B.
+\par}
+\vspace{4pt}
+{\centering
+\sbox{\reporttablebox}{%
+\begin{tabular}{llllllll}
+\toprule
+Depth & Leaf min & Train \% & Val \% & Test \% & Leaves & Mean n/leaf & Singleton \% \\
+\midrule
+2 & 1 & 7.5 & 5.0 & 5.0 & 3 & 80.00 & 0.0 \\
+2 & 2 & 7.5 & 5.0 & 5.0 & 3 & 80.00 & 0.0 \\
+2 & 4 & 7.5 & 5.0 & 5.0 & 3 & 80.00 & 0.0 \\
+4 & 1 & 12.5 & 10.0 & 8.8 & 5 & 48.00 & 0.0 \\
+4 & 2 & 12.5 & 10.0 & 8.8 & 5 & 48.00 & 0.0 \\
+4 & 4 & 12.5 & 10.0 & 8.8 & 5 & 48.00 & 0.0 \\
+8 & 1 & 22.5 & 17.5 & 15.0 & 9 & 26.67 & 0.0 \\
+8 & 2 & 22.5 & 17.5 & 15.0 & 9 & 26.67 & 0.0 \\
+8 & 4 & 22.5 & 17.5 & 15.0 & 9 & 26.67 & 0.0 \\
+16 & 1 & 45.0 & 32.5 & 30.0 & 18 & 13.33 & 0.0 \\
+16 & 2 & 45.0 & 32.5 & 30.0 & 18 & 13.33 & 0.0 \\
+16 & 4 & 45.0 & 32.5 & 30.0 & 18 & 13.33 & 0.0 \\
+None & 1 & 100.0 & 53.8 & 58.8 & 40 & 6.00 & 0.0 \\
+None & 2 & 100.0 & 53.8 & 58.8 & 40 & 6.00 & 0.0 \\
+None & 4 & 100.0 & 53.8 & 58.8 & 40 & 6.00 & 0.0 \\
+\bottomrule
+\end{tabular}}
+\ifdim\wd\reporttablebox>0.99\textwidth
+\resizebox{0.99\textwidth}{!}{\usebox{\reporttablebox}}
+\else\usebox{\reporttablebox}\fi
+\par\small Table 1. Single-tree grid. Hyperparameters are selected by clean validation accuracy.
+\par}
+\vspace{4pt}
+\vspace{3pt}}]
+\subsection*{5. Baseline selection}
+The validation winner has depth None and minimum leaf 4, with train/validation/test accuracy 100.0/53.8/58.8\%. Its 40 leaves average 6.00 training samples; 0.0\% contain only one sample.
+
+With the leaf minimum held at 4, increasing depth from 2 to None raises training accuracy from 7.5\% to 100.0\%. Leaves increase from 3 to 40, while average occupancy falls from 80.00 to 6.00. The shallow tree underfits: its few large leaves cannot separate many identities.
+
+\newpage
+\subsection*{6. Bootstrap coverage}
+A training example is absent from n=240 replacement draws with probability (1-1/n)\textasciicircum{}n. Hence E[distinct] = n[1-(1-1/n)\textasciicircum{}n] = 151.893. Table 2's averages stay close to this expectation. Repeated draws count as repeated fitting samples.
+
+Validation chooses B=200 at 81.2\%; clean-test accuracy reaches 86.2\%. OOB accuracy, disagreement, and margin help interpret this choice but do not select the size.
+
+\clearpage
+\twocolumn[{%
+\section*{Bagging diagnostics and error cases}
+{\centering
+\sbox{\reporttablebox}{%
+\begin{tabular}{lllllllll}
+\toprule
+B & Train \% & Val \% & Test \% & Unique & OOB \% & Cover \% & Disagree & Margin \\
+\midrule
+1 & 69.2 & 28.7 & 37.5 & 156.0 & 29.8 & 35.0 & N/A & 1.000 \\
+5 & 92.5 & 47.5 & 56.2 & 151.6 & 28.0 & 90.8 & 0.794 & 0.238 \\
+10 & 99.2 & 65.0 & 71.2 & 151.2 & 34.7 & 99.6 & 0.811 & 0.234 \\
+25 & 100.0 & 72.5 & 75.0 & 151.2 & 54.2 & 100.0 & 0.809 & 0.233 \\
+50 & 100.0 & 76.2 & 80.0 & 151.7 & 68.8 & 100.0 & 0.808 & 0.243 \\
+100 & 100.0 & 77.5 & 83.8 & 152.2 & 73.8 & 100.0 & 0.805 & 0.244 \\
+200 & 100.0 & 81.2 & 86.2 & 151.5 & 76.2 & 100.0 & 0.799 & 0.251 \\
+\bottomrule
+\end{tabular}}
+\ifdim\wd\reporttablebox>0.99\textwidth
+\resizebox{0.99\textwidth}{!}{\usebox{\reporttablebox}}
+\else\usebox{\reporttablebox}\fi
+\par\small Table 2. Bagging sweep. OOB uses covered training images; disagreement and margin use clean validation images.
+\par}
+\vspace{4pt}
+{\centering
+\IfFileExists{figures/05_bagging_face_cases_compact.pdf}{\def\reportfigure{figures/05_bagging_face_cases_compact.pdf}}{\def\reportfigure{../figures/05_bagging_face_cases.pdf}}
+\includegraphics[width=0.98\textwidth,height=2.083in,keepaspectratio]{\reportfigure}
+\par\small Figure 2. Two bagging corrections and two shared errors, with labels, confidence, and leading vote counts.
+\par}
+\vspace{4pt}
+\vspace{3pt}}]
+\subsection*{7. Reading the diagnostics}
+At B=200, OOB accuracy is 76.2\% with 100.0\% coverage. Validation disagreement is 0.799 and mean margin is 0.251. Validation first reaches its maximum at B=200.
+
+OOB also peaks at B=200, supporting the validation choice. For B>1, disagreement varies only from 0.794 to 0.811; the largest margin occurs at B=200. Diversity alone does not track the accuracy gain. B=1 even has margin one despite low accuracy, because its single vote is unanimous.
+
+Disagreement averages differing predictions across unordered tree pairs on validation images; it is undefined at B=1. Margin is the average winning minus runner-up vote fraction, including classes with zero votes. OOB accuracy excludes images with no eligible votes.
+
+\newpage
+\subsection*{8. What the error cases show}
+Figure 2 contains 2 bagging corrections and 2 shared errors. For image 7, the tree predicts 2, while the true class 0 wins 97/200 bagging votes. For image 9, the tree predicts 5, while the true class 0 wins 44/200 bagging votes. A correct plurality can recover an error without a majority.
+
+Image 21 belongs to class 2, but class 3 leads with 24/200 votes. Image 36 belongs to class 3, but class 12 leads with 44/200 votes. These dispersed votes still produce the wrong winner. Aggregation helps when errors differ across trees, but cannot remove every shared confusion. Image conditions and complete class counts accompany the examples.
+
+\clearpage
+\twocolumn[{%
+\section*{SAMME implementation and candidate search}
+{\centering
+\IfFileExists{figures/03_boosting_history_compact.pdf}{\def\reportfigure{figures/03_boosting_history_compact.pdf}}{\def\reportfigure{../figures/03_boosting_history.pdf}}
+\includegraphics[width=0.98\textwidth,height=2.083in,keepaspectratio]{\reportfigure}
+\par\small Figure 3. Selected SAMME weighted error, learner coefficient, maximum weight, and top-10 weight mass by round.
+\par}
+\vspace{4pt}
+\vspace{3pt}}]
+\subsection*{9. Update equations}
+\begin{align*}
+\epsilon_t &= \sum_i w_i^{(t)}\mathbf{1}[h_t(x_i)\ne y_i],\\
+\alpha_t &= \log\frac{1-\epsilon_t}{\epsilon_t}+\log(K-1),\\
+w_i^{(t+1)} &= \frac{w_i^{(t)}e^{\alpha_t\mathbf{1}[h_t(x_i)\ne y_i]}}{\sum_j w_j^{(t)}e^{\alpha_t\mathbf{1}[h_t(x_j)\ne y_j]}},\\
+p_k(x)&=\frac{\sum_t\alpha_t\mathbf{1}[h_t(x)=k]}{\sum_t\alpha_t}.
+\end{align*}
+
+Weights start at 1/n. A learner with error at least 1-1/K stops the run; rejection in the first round invalidates the candidate. A perfect learner uses machine epsilon to keep its coefficient finite, then stops. Tables distinguish requested and accepted rounds.
+
+\subsection*{10. One toy round}
+The 9-sample, three-class toy uses the same update code as the face experiment. Its weighted error is 0.444444 and alpha is 0.916291. The table shows weights before and after normalization.
+
+{\centering
+\sbox{\reporttablebox}{%
+\begin{tabular}{llllll}
+\toprule
+i & x & y & h & w before & w after \\
+\midrule
+0 & 0.0 & 0 & 0 & 0.1111 & 0.0667 \\
+1 & 1.0 & 0 & 0 & 0.1111 & 0.0667 \\
+2 & 2.0 & 1 & 1 & 0.1111 & 0.0667 \\
+3 & 3.0 & 1 & 1 & 0.1111 & 0.0667 \\
+4 & 4.0 & 2 & 1 & 0.1111 & 0.1667 \\
+5 & 5.0 & 2 & 1 & 0.1111 & 0.1667 \\
+6 & 6.0 & 0 & 1 & 0.1111 & 0.1667 \\
+7 & 7.0 & 1 & 1 & 0.1111 & 0.0667 \\
+8 & 8.0 & 2 & 1 & 0.1111 & 0.1667 \\
+\bottomrule
+\end{tabular}}
+\ifdim\wd\reporttablebox>\columnwidth
+\resizebox{\columnwidth}{!}{\usebox{\reporttablebox}}
+\else\usebox{\reporttablebox}\fi
+\par\small Toy trace. A wrong prediction is multiplied by exp(alpha) before normalization; all weights sum to one.
+\par}
+\vspace{4pt}
+\newpage
+{\centering
+\sbox{\reporttablebox}{%
+\begin{tabular}{lllll}
+\toprule
+Depth & T req/fit & Train \% & Val \% & Test \% \\
+\midrule
+1 & 10/10 & 5.0 & 5.0 & 3.8 \\
+1 & 25/25 & 5.0 & 5.0 & 5.0 \\
+1 & 50/50 & 18.8 & 11.2 & 11.2 \\
+1 & 100/100 & 7.5 & 6.2 & 7.5 \\
+2 & 10/10 & 12.1 & 8.8 & 7.5 \\
+2 & 25/25 & 29.6 & 12.5 & 16.2 \\
+2 & 50/50 & 40.8 & 17.5 & 21.2 \\
+2 & 100/100 & 39.2 & 15.0 & 12.5 \\
+3 & 10/10 & 18.3 & 8.8 & 7.5 \\
+3 & 25/25 & 35.8 & 12.5 & 17.5 \\
+3 & 50/50 & 69.6 & 22.5 & 25.0 \\
+3 & 100/100 & 78.8 & 18.8 & 23.8 \\
+4 & 10/10 & 45.0 & 23.8 & 30.0 \\
+4 & 25/25 & 57.1 & 25.0 & 26.2 \\
+4 & 50/50 & 94.2 & 42.5 & 32.5 \\
+4 & 100/100 & 98.8 & 41.2 & 41.2 \\
+\bottomrule
+\end{tabular}}
+\ifdim\wd\reporttablebox>\columnwidth
+\resizebox{\columnwidth}{!}{\usebox{\reporttablebox}}
+\else\usebox{\reporttablebox}\fi
+\par\small Table 3. SAMME grid, with requested and accepted rounds.
+\par}
+\vspace{4pt}
+\subsection*{11. Selected model and weight evolution}
+Validation selects depth 4 and 50 rounds, all 50 accepted. The grid shows that more rounds do not consistently improve held-out accuracy.
+
+In the final round, error is 0.6303 and alpha is 3.1300. The largest weight reaches 0.0854; the ten heaviest samples hold 28.7\% of the mass. Errors use entering weights, while weight summaries follow the update. The top-ten membership can change each round.
+
+\clearpage
+\twocolumn[{%
+\section*{Bagging versus SAMME}
+{\centering
+\sbox{\reporttablebox}{%
+\begin{tabular}{llllll}
+\toprule
+Model & Req/fit & Train \% & Val \% & Test \% & Fit s \\
+\midrule
+Bagging & 25/25 & 100.0 & 72.5 & 75.0 & 13.16 \\
+SAMME & 25/25 & 57.1 & 25.0 & 26.2 & 4.11 \\
+Bagging & 50/50 & 100.0 & 76.2 & 80.0 & 26.35 \\
+SAMME & 50/50 & 94.2 & 42.5 & 32.5 & 8.21 \\
+Bagging & 100/100 & 100.0 & 77.5 & 83.8 & 53.28 \\
+SAMME & 100/100 & 98.8 & 41.2 & 41.2 & 16.47 \\
+\bottomrule
+\end{tabular}}
+\ifdim\wd\reporttablebox>0.99\textwidth
+\resizebox{0.99\textwidth}{!}{\usebox{\reporttablebox}}
+\else\usebox{\reporttablebox}\fi
+\par\small Table 4. Bagging and SAMME at matched learner counts. Times cover fitting only.
+\par}
+\vspace{4pt}
+{\centering
+\IfFileExists{figures/06_boosting_high_weight_face_compact.pdf}{\def\reportfigure{figures/06_boosting_high_weight_face_compact.pdf}}{\def\reportfigure{../figures/06_boosting_high_weight_face.pdf}}
+\includegraphics[width=0.98\textwidth,height=2.292in,keepaspectratio]{\reportfigure}
+\par\small Figure 4. A high-weight training face, its weight history, and the weak learners' predictions.
+\par}
+\vspace{4pt}
+\vspace{3pt}}]
+\subsection*{12. Accuracy and training time}
+Table 4 compares fresh fits at 25, 50, and 100 learners, using the selected tree settings and weak depth. Each timing is one wall-clock measurement on the same machine, excluding data loading, prediction, and plotting.
+
+Bagging is more accurate at 3 of the three sizes, but its 100-tree fit takes 3.24 times as long as SAMME. Matching learner counts does not match capacity: bagging uses depth None; SAMME uses depth 4, allowing at most 16 leaves for 40 identities per weak learner. Boosting is sequential, whereas bagging's trees can be trained independently.
+
+\newpage
+\subsection*{13. Why a face receives large weight}
+Image 191 belongs to class 19 and occupies training position 116. Weak learners misclassify it in 44/50 rounds. Its peak weight, 0.08545, is 20.5 times the initial 1/240. It is selected by the highest weight reached in any round.
+
+Each mistake multiplies its weight by exp(alpha) before normalization. Correct rounds receive no multiplier and its normalized weight falls, producing the sharp drops in Figure 4. Repeated mistakes bring it back into focus. This explains the learner's attention to the image, without assuming its label is wrong.
+
+\clearpage
+\twocolumn[{%
+\section*{Central-mask robustness and disagreement}
+{\centering
+\sbox{\reporttablebox}{%
+\begin{tabular}{llllll}
+\toprule
+Model & Clean \% & Masked \% & Drop pp & Conf clean & Conf masked \\
+\midrule
+Single tree & 58.8 & 40.0 & 18.8 & 1.000 & 1.000 \\
+Bagging & 86.2 & 51.2 & 35.0 & 0.388 & 0.278 \\
+SAMME & 32.5 & 36.2 & -3.7 & 0.128 & 0.121 \\
+\bottomrule
+\end{tabular}}
+\ifdim\wd\reporttablebox>0.99\textwidth
+\resizebox{0.99\textwidth}{!}{\usebox{\reporttablebox}}
+\else\usebox{\reporttablebox}\fi
+\par\small Table 5. Clean and masked versions of the same 80 test faces. Confidence is the mean winning class score.
+\par}
+\vspace{4pt}
+{\centering
+\IfFileExists{figures/07_masking_divergence_compact.pdf}{\def\reportfigure{figures/07_masking_divergence_compact.pdf}}{\def\reportfigure{../figures/07_masking_divergence.pdf}}
+\includegraphics[width=0.98\textwidth,height=2.153in,keepaspectratio]{\reportfigure}
+\par\small Figure 5. The same held-out face before and after masking; predictions and normalized winning scores are shown.
+\par}
+\vspace{4pt}
+\vspace{3pt}}]
+\subsection*{14. Accuracy under occlusion}
+Table 5 uses the same clean-trained models on both test conditions, without adaptation to masked images. Confidence averages winning scores over all 80 faces, including mistakes. Because the methods define scores differently, equal confidence need not imply equal calibration.
+
+The tree's masked mean confidence is 1.000, despite accuracy of 40.0\%. Routing an occluded face to a pure leaf preserves confidence even when the identity is wrong.
+
+Bagging suffers the largest drop, 35.0 percentage points. SAMME improves by 3.75 pp under this mask. These effects concern just 80 faces and one mask; any improvement here does not establish a general benefit from occlusion.
+
+\newpage
+\subsection*{15. Different responses to a missing region}
+Image 144 has true class 14. Bagging predicts 14 before masking and 14 after; SAMME changes from 14 to 4. The mask changes 59.0\% of bagging predictions and 20.3\% of SAMME's coefficient mass. Bagging disagreement changes from 0.564 to 0.817.
+
+Bagging's equally weighted votes retain the correct lead here, despite substantial disagreement. SAMME's reweighted training and coefficient-weighted votes produce a different winner. The vote changes explain this example's response; a single face cannot establish that training-weight concentration causes the robustness difference.
+
+\clearpage
+\twocolumn[{%
+\section*{Bias and variance across 30 refits}
+{\centering
+\sbox{\reporttablebox}{%
+\begin{tabular}{llllll}
+\toprule
+Model & Bias sq. & Variance & Acc mean \% & Acc SD pp & Brier \\
+\midrule
+Single tree & 0.4287 & 0.6221 & 47.5 & 5.07 & 1.0508 \\
+Bagging & 0.5320 & 0.0192 & 74.7 & 3.61 & 0.5512 \\
+SAMME & 0.8914 & 0.0211 & 25.0 & 6.86 & 0.9125 \\
+\bottomrule
+\end{tabular}}
+\ifdim\wd\reporttablebox>0.99\textwidth
+\resizebox{0.99\textwidth}{!}{\usebox{\reporttablebox}}
+\else\usebox{\reporttablebox}\fi
+\par\small Table 6. Thirty paired training resamples with a fixed clean test set. Accuracy SD uses ddof=1.
+\par}
+\vspace{4pt}
+{\centering
+\sbox{\reporttablebox}{%
+\begin{tabular}{lllllll}
+\toprule
+Depth & Model & Bias sq. & Variance & Acc \% & n/leaf & Disagree \\
+\midrule
+2 & Single tree & 0.9412 & 0.0175 & 5.5 & 80.00 & N/A \\
+2 & Bagging & 0.9344 & 0.0054 & 21.7 & 77.07 & 0.965 \\
+8 & Single tree & 0.7907 & 0.1078 & 16.9 & 25.37 & N/A \\
+8 & Bagging & 0.8180 & 0.0132 & 41.9 & 23.02 & 0.926 \\
+None & Single tree & 0.4287 & 0.6221 & 47.5 & 6.00 & N/A \\
+None & Bagging & 0.5313 & 0.0234 & 74.3 & 6.12 & 0.831 \\
+\bottomrule
+\end{tabular}}
+\ifdim\wd\reporttablebox>0.99\textwidth
+\resizebox{0.99\textwidth}{!}{\usebox{\reporttablebox}}
+\else\usebox{\reporttablebox}\fi
+\par\small Table 7. Depth comparison on 30 shared resamples; each bagging ensemble has 100 trees.
+\par}
+\vspace{4pt}
+\vspace{3pt}}]
+\subsection*{16. Resampling procedure}
+Each of 30 repetitions draws six images with replacement from each identity's original six training images. Every model and depth uses that repetition's 240 training positions, with no retuning. All refits predict the same 80 clean test faces.
+
+For the one-hot target $e_i$, $N=80$, and $R=30$,
+\begin{align*}
+\bar p_i &= \frac{1}{R}\sum_r p_{ri},\\
+\mathrm{Bias}^2 &= \frac1N\sum_i\|\bar p_i-e_i\|_2^2,\\
+\mathrm{Variance} &= \frac1{NR}\sum_{r,i}\|p_{ri}-\bar p_i\|_2^2.
+\end{align*}
+
+Mean squared vector error equals squared bias plus variance, within floating-point tolerance. Classification accuracy has no such decomposition.
+
+\newpage
+\subsection*{17. Depth effects and bagging benefit}
+Depth 2: accuracy change 16.21 pp; variance reduction 0.0121. Depth 8: accuracy change 25.00 pp; variance reduction 0.0946. Depth None: accuracy change 26.88 pp; variance reduction 0.5987.
+
+The deepest condition (None) gives the largest accuracy gain (26.88 pp).
+
+At depth 2, bagging changes squared bias from 0.9412 to 0.9344 and mean leaf occupancy from 80.00 to 77.07; disagreement is 0.965. At depth None, bias changes from 0.4287 to 0.5313 while variance falls from 0.6221 to 0.0234; occupancy is 6.00 versus 6.12 and disagreement is 0.831. Here, the large variance reduction comes with higher squared bias.
+
+Tree vectors use predict\_proba; bagging uses vote fractions; SAMME uses normalized coefficient-weighted votes. All follow the same class order. Accuracy SD uses ddof=1 across refits, while vector variance uses denominator R.
+
+\clearpage
+\twocolumn[{%
+\section*{Discussion and reproducibility}
+{\centering
+\sbox{\reporttablebox}{%
+\begin{tabular}{lllll}
+\toprule
+Model & Clean \% & Masked \% & Bias sq. & Variance \\
+\midrule
+Single tree & 58.8 & 40.0 & 0.4287 & 0.6221 \\
+Bagging & 86.2 & 51.2 & 0.5320 & 0.0192 \\
+SAMME & 32.5 & 36.2 & 0.8914 & 0.0211 \\
+\bottomrule
+\end{tabular}}
+\ifdim\wd\reporttablebox>0.99\textwidth
+\resizebox{0.99\textwidth}{!}{\usebox{\reporttablebox}}
+\else\usebox{\reporttablebox}\fi
+\par\small Table 8. Selected models: original clean/masked accuracy and repeated-refit bias and variance.
+\par}
+\vspace{4pt}
+\vspace{3pt}}]
+\subsection*{18. Overall comparison}
+Among the three selected models, Bagging has the lowest variance (0.0192) and squared bias 0.5320. Bagging has the highest original clean-test accuracy (86.2\%). The two rankings agree here.
+
+Bagging is also most sensitive to the mask by accuracy drop. Stability under training resampling and resistance to occlusion are therefore different properties. The depth comparison on this page also shows why variance alone cannot rank accuracy.
+
+Table 8 combines the original models' clean and masked accuracies with bias and variance across 30 refits. The refits' mean accuracy and SD appear separately in Table 6.
+
+\subsection*{19. Reproduction and validation}
+README commands reproduce the split, 30 resamples, model selection, tables, figures, and report. results/summary.json contains scores, timings, OOB coverage, and traces; results/predictions.npz contains class vectors, votes, sample weights, and all 30 refits.
+
+Checks verify the toy update, vector normalization, OOB eligibility, mask coordinates, identity counts, deterministic outputs, and the bias-plus-variance identity. Ensemble metrics come from the manual implementations.
+
+\subsection*{20. Scope limits}
+The test faces belong to known training identities, so this study concerns new images of those people. It covers one split and one central zero mask. Each requested size has one fresh-fit timing, without repeated benchmark measurements.
+
+\newpage
+\subsection*{Choosing comparison depths}
+The selected tree already has unlimited depth, so a deeper condition cannot be built. The comparison therefore uses depths 2, 8, and None, with the selected minimum leaf size and 100 trees per bagging ensemble.
+
+Bagging at depth 2 has variance 0.0054 and mean accuracy 21.7\%, whereas depth None has larger variance 0.0234 but mean accuracy 74.3\%: lower variance does not guarantee better accuracy. High disagreement alone is also insufficient.
+
+\subsection*{References}
+[1] scikit-learn. fetch\_olivetti\_faces API and Olivetti faces dataset documentation. \url{https://scikit-learn.org/stable/modules/generated/sklearn.datasets.fetch_olivetti_faces.html}
+
+[2] scikit-learn. DecisionTreeClassifier API. \url{https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html}
+
+[3] L. Breiman. Bagging Predictors. Machine Learning 24, 123-140, 1996. \url{https://doi.org/10.1007/BF00058655}
+
+[4] J. Zhu, H. Zou, S. Rosset, and T. Hastie. Multi-class AdaBoost. Statistics and Its Interface 2, 349-360, 2009. \url{https://doi.org/10.4310/SII.2009.v2.n3.a8}
+
+\subsection*{Environment}
+Python 3.12.14; platform macOS-26.5.2-arm64-arm-64bit; machine arm64. Package versions: numpy 2.3.5; scipy 1.18.1; scikit-learn 1.9.1; matplotlib 3.11.2; joblib 1.6.0; reportlab 4.4.9; pypdf 6.10.0.
+
+The experiment run took 965.1 seconds. Table 4 times exclude evaluation and report generation. Configurations and run fingerprints identify the inputs for cached refits.
+
+\end{document}

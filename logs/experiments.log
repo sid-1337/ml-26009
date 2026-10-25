@@ -1,0 +1,40 @@
+Data prepared: seed=99, train=240, validation=80, test=80; provisional=True
+Baseline selected by validation: {'depth': None, 'min_samples_leaf': 4}
+Bagging selected: B=200, validation=0.8125
+Boosting depth=1, accepted=100
+Boosting depth=2, accepted=100
+Boosting depth=3, accepted=100
+Boosting depth=4, accepted=100
+Boosting selected: {'depth': 4, 'rounds': 50, 'actual_rounds': 50}
+Original-model comparisons and all case studies saved. Beginning paired resampling study.
+Resampling complete: repetition 3/30 (1 finished)
+Resampling complete: repetition 4/30 (2 finished)
+Resampling complete: repetition 2/30 (3 finished)
+Resampling complete: repetition 1/30 (4 finished)
+Resampling complete: repetition 5/30 (5 finished)
+Resampling complete: repetition 6/30 (6 finished)
+Resampling complete: repetition 7/30 (7 finished)
+Resampling complete: repetition 8/30 (8 finished)
+Resampling complete: repetition 10/30 (9 finished)
+Resampling complete: repetition 9/30 (10 finished)
+Resampling complete: repetition 11/30 (11 finished)
+Resampling complete: repetition 12/30 (12 finished)
+Resampling complete: repetition 16/30 (13 finished)
+Resampling complete: repetition 17/30 (14 finished)
+Resampling complete: repetition 18/30 (15 finished)
+Resampling complete: repetition 19/30 (16 finished)
+Resampling complete: repetition 20/30 (17 finished)
+Resampling complete: repetition 21/30 (18 finished)
+Resampling complete: repetition 22/30 (19 finished)
+Resampling complete: repetition 23/30 (20 finished)
+Resampling complete: repetition 24/30 (21 finished)
+Resampling complete: repetition 14/30 (22 finished)
+Resampling complete: repetition 26/30 (23 finished)
+Resampling complete: repetition 27/30 (24 finished)
+Resampling complete: repetition 13/30 (25 finished)
+Resampling complete: repetition 15/30 (26 finished)
+Resampling complete: repetition 25/30 (27 finished)
+Resampling complete: repetition 28/30 (28 finished)
+Resampling complete: repetition 30/30 (29 finished)
+Resampling complete: repetition 29/30 (30 finished)
+ALL EXPERIMENTS COMPLETE in 965.1 seconds

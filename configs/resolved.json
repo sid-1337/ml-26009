@@ -1,0 +1,42 @@
+{
+  "seed": 99,
+  "seed_is_provisional": false,
+  "roll_number": "M26MAC009",
+  "student_name": "Siddharth Bajpai",
+  "repository_url": "https://github.com/sid-1337/ml-26009",
+  "n_jobs": 4,
+  "tree_depths": [
+    2,
+    4,
+    8,
+    16,
+    null
+  ],
+  "minimum_leaf_sizes": [
+    1,
+    2,
+    4
+  ],
+  "bagging_sizes": [
+    1,
+    5,
+    10,
+    25,
+    50,
+    100,
+    200
+  ],
+  "boosting_depths": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "boosting_rounds": [
+    10,
+    25,
+    50,
+    100
+  ],
+  "resamples": 30
+}

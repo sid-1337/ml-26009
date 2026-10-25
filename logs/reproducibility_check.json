@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "fresh_environment": true,
+  "scope": "Saved split, 30 resamples, and fresh original selected-model clean/masked class vectors; this check does not rerun all 30 ensemble refits.",
+  "checks": [
+    {
+      "model": "tree",
+      "condition": "clean",
+      "bitwise_equal": true,
+      "maximum_absolute_error": 0.0
+    },
+    {
+      "model": "tree",
+      "condition": "masked",
+      "bitwise_equal": true,
+      "maximum_absolute_error": 0.0
+    },
+    {
+      "model": "bagging",
+      "condition": "clean",
+      "bitwise_equal": true,
+      "maximum_absolute_error": 0.0
+    },
+    {
+      "model": "bagging",
+      "condition": "masked",
+      "bitwise_equal": true,
+      "maximum_absolute_error": 0.0
+    },
+    {
+      "model": "boosting",
+      "condition": "clean",
+      "bitwise_equal": true,
+      "maximum_absolute_error": 0.0
+    },
+    {
+      "model": "boosting",
+      "condition": "masked",
+      "bitwise_equal": true,
+      "maximum_absolute_error": 0.0
+    }
+  ],
+  "wall_seconds": 110.76854270799959,
+  "environment_executable": "/Users/hwalia1/Documents/Codex/2026-10-19/files-mentioned-by-the-user-064912a5/work/repro_env/bin/python",
+  "environment_prefix": "/Users/hwalia1/Documents/Codex/2026-10-19/files-mentioned-by-the-user-064912a5/work/repro_env"
+}
