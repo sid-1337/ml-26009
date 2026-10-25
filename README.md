@@ -1,73 +1,170 @@
-# Task99
+# Task26009
 
-Decision trees, manual bagging and SAMME, masking robustness, and bias/variance on Olivetti faces.
+Implementation and evaluation of decision trees, manual bagging, and SAMME boosting, including masking robustness and bias–variance analysis using the Olivetti Faces dataset.
 
-The included run uses provisional seed `99`. Fill `student_name`, `roll_number`, `repository_url`, and `final_commit_hash` in `configs/default.json`, then rerun with the complete roll number. Code, analysis, figures, and report were generated with Codex.
+The project includes experiment outputs, saved predictions, trained models, reproducibility records, figures, and a PDF report. The current run is stored in `runs/m26mac009`. Before final submission, verify that `configs/default.json` contains the correct student name, roll number, repository URL, and final commit hash.
+
+## Table of Contents
+
+- [Project Structure](#project-structure)
+- [Setup](#setup)
+- [Run Experiments](#run-experiments)
+- [Validate Results](#validate-results)
+- [Reproducibility](#reproducibility)
+- [Report Compilation](#report-compilation)
+
+## Project Structure
+
+```text
+.
+├── configs/
+│   ├── default.json
+│   └── resolved.json
+├── data/
+│   ├── olivetti.npz
+│   ├── resamples.npz
+│   ├── split.npz
+│   └── split_metadata.json
+├── figures/
+├── logs/
+├── models/
+├── report/
+├── results/
+├── runs/
+│   └── m26mac009/
+├── scripts/
+├── task26009/
+│   ├── __init__.py
+│   ├── data.py
+│   ├── experiments.py
+│   ├── metrics.py
+│   └── models.py
+├── tests/
+├── pytest.ini
+├── requirements-lock.txt
+└── README.md
+```
 
 ## Setup
 
-Python 3.12 was used. On this Mac:
+Python 3.14 is currently used by the existing Anaconda installation and project virtual environment. The locked dependencies should be installed in the virtual environment rather than the system Python environment.
+
+From the project root:
 
 ```bash
-cd /Users/hwalia1/Documents/Task99
-/Users/hwalia1/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3.12 -m venv .venv
+source .venv/bin/activate
+
+python --version
+python -m pip install -r requirements-lock.txt
+```
+
+If `.venv` has not been created yet, create it using your available Python executable:
+
+```bash
+python -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements-lock.txt
 ```
 
-For another computer, use its Python 3.12 executable and install Tectonic. The exact Python and Tectonic paths shown here refer to this Mac.
+If dependency installation fails, check the Python version required by the pinned packages before recreating the environment. Use Python 3.12 if the assignment dependencies or configuration explicitly require it.
 
-In each new Terminal session:
+## Run Experiments
 
-```bash
-cd /Users/hwalia1/Documents/Task99
-source .venv/bin/activate
-```
-
-## Run
-
-Reproduce the included seed-99 experiment, tests, figures, and official PDF:
+Run the complete pipeline using the required roll number and the designated output directory:
 
 ```bash
-python scripts/run_all.py --jobs 4 --latex /Users/hwalia1/Documents/Codex/2026-10-19/files-mentioned-by-the-user-064912a5/work/tectonic
+python scripts/run_all.py \
+  --root runs/m26mac009 \
+  --roll-number M26MAC009 \
+  --jobs 4
 ```
 
-Run with the required roll-number seed in a separate output directory; replace the placeholder:
+Replace `M26MAC009` with the complete roll number associated with your submission if it differs. The pipeline is responsible for executing the experiments, running tests, and generating the associated outputs according to its configuration.
+
+### Run experiments separately
+
+To execute only the experiment stage:
 
 ```bash
-python scripts/run_all.py --root runs/actual_roll --roll-number YOUR_COMPLETE_ROLL_NUMBER --jobs 4 --latex /Users/hwalia1/Documents/Codex/2026-10-19/files-mentioned-by-the-user-064912a5/work/tectonic
-python scripts/validate_results.py --root runs/actual_roll
+python scripts/run_experiments.py \
+  --root runs/m26mac009 \
+  --roll-number M26MAC009
 ```
 
-Rebuild figures and the report from saved results:
+Check `python scripts/run_experiments.py --help` if your version of the script uses different arguments.
 
-```bash
-python scripts/run_all.py --skip-experiments --latex /Users/hwalia1/Documents/Codex/2026-10-19/files-mentioned-by-the-user-064912a5/work/tectonic
-```
+## Validate Results
 
-Run checks separately:
+Run the unit tests:
 
 ```bash
 python -m pytest -q
-python scripts/validate_results.py
+```
+
+Validate the generated results:
+
+```bash
+python scripts/validate_results.py \
+  --root runs/m26mac009
+```
+
+Run the reproducibility check:
+
+```bash
 python scripts/check_reproducibility.py
 ```
 
-To use Tectonic installed on PATH, omit `--latex`. The pipeline requires a compiler to rebuild the official PDF; without one, it writes the TeX source. To compile that source manually:
+If a test fails with `ModuleNotFoundError: No module named 'task26009'`, verify that the virtual environment is active and that the project root is on Python's import path. The tests must import the renamed package consistently.
 
-```bash
-cd report
-tectonic --keep-logs report.tex
-cd ..
+## Reproducibility
+
+The experiment configuration and saved artifacts are retained to support reproducibility.
+
+- `configs/default.json` contains the default experiment parameters.
+- `configs/resolved.json` records the resolved configuration for the existing run.
+- `data/split_metadata.json` stores metadata about the data split.
+- `data/resamples.npz` contains the training resamples.
+- `results/summary.json` contains consolidated experiment results.
+- `results/predictions.npz` stores prediction outputs.
+- `logs/` contains experiment and reproducibility records.
+
+Use a separate output directory when comparing runs with different configurations. Confirm that the roll-number seed and resolved configuration match the requirements of your assignment before submitting the results.
+
+## Report Compilation
+
+The generated PDF report and its LaTeX source are stored under the run directory:
+
+```text
+runs/m26mac009/report/
+├── report.pdf
+├── report.tex
+├── cvpr.sty
+├── ieeenat_fullname.bst
+└── figures/
 ```
 
-## Files
+If Tectonic is installed, compile the report from its source directory:
 
-- `report/`: official PDF, TeX source, CVPR style, and report figures.
-- `task26009/`, `scripts/`, `tests/`: complete implementation, figure/report scripts, and checks.
-- `configs/`: default parameters and the configuration used for the included run.
-- `data/`: dataset, saved split, seed metadata, and 30 training resamples.
-- `results/`: consolidated scores, histories, case studies, and all prediction vectors.
-- `models/`: selected fitted models used to reproduce case-study evidence.
-- `logs/`: final experiment, test, and reproduction-check records.
-- `requirements-lock.txt`: pinned Python environment.
+```bash
+cd runs/m26mac009/report
+tectonic --keep-logs report.tex
+cd -
+```
+
+If the full pipeline supports a `--latex` option, consult the runner's help output before specifying a custom compiler path:
+
+```bash
+python scripts/run_all.py --help
+```
+
+## Main Components
+
+- **`task26009/`** — data preparation, experiment logic, evaluation metrics, and model implementations.
+- **`scripts/`** — experiment orchestration, validation, reproducibility checks, and report/figure generation.
+- **`tests/`** — automated tests for data processing, metrics, and models.
+- **`data/`** — dataset and preprocessing artifacts.
+- **`models/`** — saved model artifacts.
+- **`results/`** — prediction arrays and consolidated evaluation results.
+- **`figures/`** — generated visualizations.
+- **`report/`** — report source and generated PDF.
+- **`logs/`** — experiment and validation records.
